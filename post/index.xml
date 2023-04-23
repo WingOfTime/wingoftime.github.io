@@ -120,7 +120,7 @@ class="gallery-image"
 data-flex-grow="284"
 data-flex-basis="682px"
 >&lt;/p>
-&lt;h3 id="总结">总结&lt;/h3>
+&lt;h2 id="总结">总结&lt;/h2>
 &lt;p>得益于大佬们写的第三方包，这让整个发布代码变得非常精简，拉代码、安装、构建、发布。到这里估计就差不多了，至于自定义域名，首先要有域名注册及备案，其次跟着 github page 的文档来即可，总体比较简单，就不在这里啰嗦了。&lt;/p></description></item><item><title>搭建个人博客系列（一）：利用 github pages + hugo 免费搭建专属博客</title><link>https://wingoftime.github.io/p/setup-blog-first/</link><pubDate>Wed, 12 Apr 2023 00:00:00 +0000</pubDate><guid>https://wingoftime.github.io/p/setup-blog-first/</guid><description>&lt;img src="https://wingoftime.github.io/p/setup-blog-first/hugo.jpg" alt="Featured image of post 搭建个人博客系列（一）：利用 github pages + hugo 免费搭建专属博客" />&lt;h2 id="前言">前言&lt;/h2>
 &lt;p>在搭建本博客的过程中，参考了很多人的技术文档以及官方文档。特别在这里记录本博客的搭建过程，给后来者提供便利，本文默认读者具备基础的命令行操作。&lt;/p>
 &lt;p>github pages 是一个静态网站托管服务，免费版足够个人博客使用，无需服务器成本。&lt;/p>
@@ -271,7 +271,7 @@ data-flex-basis="392px"
 &lt;/div>&lt;ol start="3">
 &lt;li>在这里已经走到了最后一步，可以打开 &lt;code>http://&amp;lt;yourname&amp;gt;.github.io&lt;/code> 看看有没有生效啦。后面每次修改后构建，并推送 git 即可。更多关于 pages 的设置在 github repository -&amp;gt; settings -&amp;gt; pages 里查看，包括分支选择，自定义域名，https 等。&lt;/li>
 &lt;/ol>
-&lt;h3 id="总结">总结&lt;/h3>
+&lt;h2 id="总结">总结&lt;/h2>
 &lt;p>再梳理一下后续博客发布的整个步骤：&lt;/p>
 &lt;ol>
 &lt;li>新建文章并编辑。&lt;/li>
