@@ -1,4 +1,127 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>陨落光羽</title><link>https://wingoftime.github.io/</link><description>Recent content on 陨落光羽</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Wed, 12 Apr 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://wingoftime.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>搭建个人博客系列（一）：github pages + hugo 免费搭建专属博客</title><link>https://wingoftime.github.io/p/setup-blog-first/</link><pubDate>Wed, 12 Apr 2023 00:00:00 +0000</pubDate><guid>https://wingoftime.github.io/p/setup-blog-first/</guid><description>&lt;img src="https://wingoftime.github.io/p/setup-blog-first/helena-hertz-wWZzXlDpMog-unsplash.jpg" alt="Featured image of post 搭建个人博客系列（一）：github pages + hugo 免费搭建专属博客" />&lt;h2 id="前言">前言&lt;/h2>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>陨落光羽</title><link>https://wingoftime.github.io/</link><description>Recent content on 陨落光羽</description><generator>Hugo -- gohugo.io</generator><language>zh-CN</language><lastBuildDate>Sun, 23 Apr 2023 00:00:00 +0000</lastBuildDate><atom:link href="https://wingoftime.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>搭建个人博客系列（二）：hugo 使用 github actions 保存源码和自动化构建</title><link>https://wingoftime.github.io/p/setup-blog-second/</link><pubDate>Sun, 23 Apr 2023 00:00:00 +0000</pubDate><guid>https://wingoftime.github.io/p/setup-blog-second/</guid><description>&lt;img src="https://wingoftime.github.io/p/setup-blog-second/github_action.jpg" alt="Featured image of post 搭建个人博客系列（二）：hugo 使用 github actions 保存源码和自动化构建" />&lt;h2 id="前言">前言&lt;/h2>
+&lt;p>忙于工作，一周后的第二篇来了，在上一篇中我们搭建好了博客，并且将 public 下的文件上传到了 github pages 并成功显示。但是为了源码安全，源码和构建产物是分开两个仓库的，修改完后需要手动构建并手动推送，稍显麻烦。&lt;/p>
+&lt;p>那么这一篇呢，我们就让源码在发布的时候自动构建并推送到 github.io 这个仓库上。&lt;/p>
+&lt;h2 id="自动化构建">自动化构建&lt;/h2>
+&lt;p>github actions 是 github 提供的免费 CI/CD 功能，可以在代码提交后自动构建自动推送。&lt;/p>
+&lt;h3 id="生成-personal_token">生成 personal_token&lt;/h3>
+&lt;p>因为是分开两个仓库的，所以需要提供推送的权限，我们点击 github 头像位置，下拉栏中选择 Settings -&amp;gt; Developer Settings -&amp;gt; Personal access tokens -&amp;gt; Tokens(classic)&lt;/p>
+&lt;p>&lt;img src="https://wingoftime.github.io/p/setup-blog-second/personal_token.jpg"
+width="1264"
+height="606"
+srcset="https://wingoftime.github.io/p/setup-blog-second/personal_token_hu2f1e02e515e351c311ec896043222feb_99877_480x0_resize_q75_box.jpg 480w, https://wingoftime.github.io/p/setup-blog-second/personal_token_hu2f1e02e515e351c311ec896043222feb_99877_1024x0_resize_q75_box.jpg 1024w"
+loading="lazy"
+alt="generate personal token"
+class="gallery-image"
+data-flex-grow="208"
+data-flex-basis="500px"
+>&lt;/p>
+&lt;p>点击生成 token，Expiration 选择 no expiration, scopes 选择 repo、workflow 权限即可，新增后记得复制保存。&lt;/p>
+&lt;h3 id="添加-personal_token">添加 personal_token&lt;/h3>
+&lt;p>在 blog 的仓库中添加 token，注意是源码仓库。blog -&amp;gt; Settings -&amp;gt; Secrets and variables -&amp;gt; Actions 的 Secrets 中点击 New repository secret，把之前的 personal_token 贴上，名字就叫 personal_token，需要跟后面的 yml 配置文件保持一致。&lt;/p>
+&lt;p>&lt;img src="https://wingoftime.github.io/p/setup-blog-second/add_token.jpg"
+width="2264"
+height="1130"
+srcset="https://wingoftime.github.io/p/setup-blog-second/add_token_hu2f1e02e515e351c311ec896043222feb_243499_480x0_resize_q75_box.jpg 480w, https://wingoftime.github.io/p/setup-blog-second/add_token_hu2f1e02e515e351c311ec896043222feb_243499_1024x0_resize_q75_box.jpg 1024w"
+loading="lazy"
+alt="add personal token"
+class="gallery-image"
+data-flex-grow="200"
+data-flex-basis="480px"
+>&lt;/p>
+&lt;h3 id="增加-deploy-yml">增加 deploy yml&lt;/h3>
+&lt;p>在 blog 的根目录下新增 .github/workflows 目录，在该目录下新增 blog-deploy.yml 文件，示例配置如下：&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;span class="lnt">12
+&lt;/span>&lt;span class="lnt">13
+&lt;/span>&lt;span class="lnt">14
+&lt;/span>&lt;span class="lnt">15
+&lt;/span>&lt;span class="lnt">16
+&lt;/span>&lt;span class="lnt">17
+&lt;/span>&lt;span class="lnt">18
+&lt;/span>&lt;span class="lnt">19
+&lt;/span>&lt;span class="lnt">20
+&lt;/span>&lt;span class="lnt">21
+&lt;/span>&lt;span class="lnt">22
+&lt;/span>&lt;span class="lnt">23
+&lt;/span>&lt;span class="lnt">24
+&lt;/span>&lt;span class="lnt">25
+&lt;/span>&lt;span class="lnt">26
+&lt;/span>&lt;span class="lnt">27
+&lt;/span>&lt;span class="lnt">28
+&lt;/span>&lt;span class="lnt">29
+&lt;/span>&lt;span class="lnt">30
+&lt;/span>&lt;span class="lnt">31
+&lt;/span>&lt;span class="lnt">32
+&lt;/span>&lt;span class="lnt">33
+&lt;/span>&lt;span class="lnt">34
+&lt;/span>&lt;span class="lnt">35
+&lt;/span>&lt;span class="lnt">36
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yml" data-lang="yml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">deploy&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">on&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">push&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">branches&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="l">main&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">workflow_dispatch&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">jobs&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">build&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">runs-on&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">ubuntu-latest&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">steps&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Checkout&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">uses&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">actions/checkout@v3&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">with&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">submodules&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">fetch-depth&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="m">0&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">ref&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">main&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># 这里选择你触发部署的分支！默认是 master&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Setup Hugo&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">uses&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">peaceiris/actions-hugo@v2&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">with&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">hugo-version&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="s2">&amp;#34;latest&amp;#34;&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">extended&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># 用 stack 主题需要加这个配置&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Build Web&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">run&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">hugo --minify&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>- &lt;span class="nt">name&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">Deploy Web&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">uses&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">peaceiris/actions-gh-pages@v3&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">with&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">PERSONAL_TOKEN&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ secrets.PERSONAL_TOKEN }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">EXTERNAL_REPOSITORY&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">wingoftime/wingoftime.github.io&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># 改成你的仓库&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">PUBLISH_BRANCH&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">main&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">PUBLISH_DIR&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">./public&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">commit_message&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">${{ github.event.head_commit.message }}&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="修改代码并推送">修改代码并推送&lt;/h3>
+&lt;p>以上的设置都完成的话，修改博客代码后并推送，就可以在 github 网页上看到工作流了，示例如下：&lt;/p>
+&lt;p>&lt;img src="https://wingoftime.github.io/p/setup-blog-second/github_workflow.jpg"
+width="2872"
+height="1010"
+srcset="https://wingoftime.github.io/p/setup-blog-second/github_workflow_huc82d7b839fc53b7a5c86bd3cdfedcac6_203907_480x0_resize_q75_box.jpg 480w, https://wingoftime.github.io/p/setup-blog-second/github_workflow_huc82d7b839fc53b7a5c86bd3cdfedcac6_203907_1024x0_resize_q75_box.jpg 1024w"
+loading="lazy"
+alt="github workflow"
+class="gallery-image"
+data-flex-grow="284"
+data-flex-basis="682px"
+>&lt;/p>
+&lt;h3 id="总结">总结&lt;/h3>
+&lt;p>得益于大佬们写的第三方包，这让整个发布代码变得非常精简，拉代码、安装、构建、发布。到这里估计就差不多了，至于自定义域名，首先要有域名注册及备案，其次跟着 github page 的文档来即可，总体比较简单，就不在这里啰嗦了。&lt;/p></description></item><item><title>搭建个人博客系列（一）：利用 github pages + hugo 免费搭建专属博客</title><link>https://wingoftime.github.io/p/setup-blog-first/</link><pubDate>Wed, 12 Apr 2023 00:00:00 +0000</pubDate><guid>https://wingoftime.github.io/p/setup-blog-first/</guid><description>&lt;img src="https://wingoftime.github.io/p/setup-blog-first/hugo.jpg" alt="Featured image of post 搭建个人博客系列（一）：利用 github pages + hugo 免费搭建专属博客" />&lt;h2 id="前言">前言&lt;/h2>
 &lt;p>在搭建本博客的过程中，参考了很多人的技术文档以及官方文档。特别在这里记录本博客的搭建过程，给后来者提供便利，本文默认读者具备基础的命令行操作。&lt;/p>
 &lt;p>github pages 是一个静态网站托管服务，免费版足够个人博客使用，无需服务器成本。&lt;/p>
 &lt;p>hugo 是一个静态网站生成器，帮你快速生成网站。&lt;/p>
@@ -54,9 +177,11 @@
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
 &lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-bash" data-lang="bash">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> blog
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">git init
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">git submodule add https://github.com/CaiJimmy/hugo-theme-stack/ themes/hugo-theme-stack
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
@@ -74,6 +199,29 @@
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;ol start="5">
+&lt;li>注意 config.yaml 里面有几项需要修改一下。&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;span class="lnt">5
+&lt;/span>&lt;span class="lnt">6
+&lt;/span>&lt;span class="lnt">7
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-yaml" data-lang="yaml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">baseurl&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="l">https://&amp;lt;yourname&amp;gt;.github.io&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># &amp;lt;yourname&amp;gt; 改成你的 github 用户名&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">enableInlineShortcodes&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># 这条原来里面没有，需要新增一下，没有的话，例子里面的 css.inline 不会生效&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w">&lt;/span>&lt;span class="nt">markup&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">goldmark&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">renderer&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="c">## Set to true if you have HTML content inside Markdown&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="w"> &lt;/span>&lt;span class="nt">unsafe&lt;/span>&lt;span class="p">:&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="kc">true&lt;/span>&lt;span class="w"> &lt;/span>&lt;span class="c"># 建议开启&lt;/span>&lt;span class="w">
+&lt;/span>&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;ol start="6">
 &lt;li>下面就可以修改 content/post 下面文章来自定义你的文章了，想自定义主题相关设置可以参照 &lt;a class="link" href="https://stack.jimmycai.com/config/" target="_blank" rel="noopener"
 >hugo-theme-stack&lt;/a>。&lt;/li>
 &lt;/ol>
@@ -131,7 +279,7 @@ data-flex-basis="392px"
 &lt;li>&lt;code>hugo&lt;/code> 构建网站。&lt;/li>
 &lt;li>利用 git 提交修改。&lt;/li>
 &lt;/ol>
-&lt;p>要注意的一点是，为了源码安全，这里是在 public 下面提交 git，不要把整个 blog 目录都提交上去了，如果你想将 blog 也通过 git 管理起来并且自动化构建的话，会在下一篇中进行讲解。&lt;/p></description></item><item><title>关于</title><link>https://wingoftime.github.io/about/</link><pubDate>Mon, 10 Apr 2023 00:00:00 +0000</pubDate><guid>https://wingoftime.github.io/about/</guid><description>&lt;h2 id="关于作者">关于作者&lt;/h2>
+&lt;p>要注意的一点是，为了源码安全，这里是在 public 下面提交 git，不要把整个 blog 目录都提交上去了， blog 可以单独生成一个私人仓库管理，一切为了安全。自动化构建的话，会在下一篇中进行讲解。&lt;/p></description></item><item><title>关于</title><link>https://wingoftime.github.io/about/</link><pubDate>Mon, 10 Apr 2023 00:00:00 +0000</pubDate><guid>https://wingoftime.github.io/about/</guid><description>&lt;h2 id="关于作者">关于作者&lt;/h2>
 &lt;p>16年北邮通信工程本科毕业，于北京混迹几年，后转行前端，目前位于杭州某非互联网公司从事前端，主用react hook，没事时也简单写点后端，处于 965 wlb(work–life balance, 工作与生活的平衡)，游戏宅，小说迷。&lt;/p>
 &lt;h2 id="关于网站">关于网站&lt;/h2>
 &lt;h3 id="网站起因">网站起因&lt;/h3>
